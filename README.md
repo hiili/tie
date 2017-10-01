@@ -1,18 +1,21 @@
-The Incredible Environment, Copyright (C) 2004-2005 Eero Uusitalo, Ville
-Heikkil‰, Mikko Ylikangas, Paul Wagner, Juho Heiskari, Kati M‰‰tt‰, Mikko
-Purtonen.
+The Incredible Environment
+==========================
 
-version 1.0
+_Copyright (C) 2004-2005 Eero Uusitalo, Ville
+Heikkil‰, Mikko Ylikangas, Paul Wagner, Juho Heiskari, Kati M‰‰tt‰, Mikko
+Purtonen._
+
+version 1.2
 
 The Incredible Environment (TIE) is an interactive virtual reality system with
 realistic physics modeling. The system is implemented as a C++ library which
 offers the avatar classes and some commonly needed object types to be used in
 the virtual environment. Beside these it is possible to create and use objects
-created directly with the underlying Lifespace Simulator platform. This program
+created directly with the underlying [Lifespace Simulator](http://iki.fi/paul.wagner/projects/lifespace/) platform. This program
 package includes also a demo world called the Improbable Mission.
 
 More information can be found from the project homepage:
-  http://www.niksula.cs.hut.fi/~pwagner/tie/
+  http://iki.fi/paul.wagner/projects/tie/
 
 
 This program is free software; you can redistribute it and/or modify
@@ -43,4 +46,4 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
   COPYING.
 
 * For more information, see the project homepage:
-    http://www.niksula.cs.hut.fi/~pwagner/tie/
+    http://iki.fi/paul.wagner/projects/tie/
