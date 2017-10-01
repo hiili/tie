@@ -1,0 +1,181 @@
+/**
+
+\page install-eve Asennus- ja käynnistysohjeet (EVE)
+
+Tässä kappaleessa selostetaan vaiheittain, miten TIE-ohjelma asennetaan
+EVE-ympäristöön \c hermit -koneelle. Manuaalin kirjoitushetkellä ohjelma on
+myös asennettuna käyttövalmiiksi \c demos -tunnukselle.
+
+
+\section tarv_kirj Tarvittavat kirjastot
+
+Ohjelmalla on seuraavat riippuvuudet muista kirjastoista (mainitut versiot
+olivat käytössä kehityksen aikana, muutkin versiot saattavat toimia):
+  - VR Juggler \n
+    versio: 1.0.7 \n
+    polku EVE:ssä: \c /cavedata/jmlaitin/vrjuggler-1.0.7/instlinks/
+  - FLUID \n
+    versio: 10 \n
+    polku EVE:ssä: \c /p/projects/fluid/current10/
+      - Mustajuuri \n
+        versio: 2 \n
+        polku EVE:ssä: \c /p/projects/tilmonen/mustajuuri-current2/
+  - Lifespace Simulator \n
+    versio: 0.0.30 \n
+    osoite: <a href="http://www.cis.hut.fi/pwagner/lifespace">http://www.cis.hut.fi/pwagner/lifespace</a>
+      - freeglut (OpenGLUT saattaa myös toimia) \n
+        versio: 2.2.0 \n
+        osoite: <a href="http://freeglut.sourceforge.net/">http://freeglut.sourceforge.net/</a>
+      - C++ Boost \n
+        versio: 1.31.0 \n
+        osoite: <a href="http://boost.org/">http://boost.org/</a>
+      - Open Dynamics Engine \n
+        versio: TIE vaatii sitä varten patchatyn version (\c ode-CVS_2005-02-16_161057_erppatch1) \n
+        osoite (patchatty versio): <a href="http://www.niksula.cs.hut.fi/~pwagner/tie/">http://www.niksula.cs.hut.fi/~pwagner/tie/</a> \n
+        osoite (ODE:n kotisivut): <a href="http://ode.org/">http://ode.org/</a>
+
+
+
+
+\section tarv_kirj_as Tarvittavien kirjastojen asennusohjeet
+
+Seuraavissa ohjeissa käännetään ja asennetaan kirjastot käyttäjän
+kotihakemistossa olevaan \c ~/TIE/local -hakemistoon, mutta tähän voi
+luonnollisesti valita jonkin muun hakemiston. Tarvittavat paketit oletetaan
+olevan valmiiksi purettuina hakemistossa \c ~/TIE/local/packages .
+
+\em HUOM: kaikkien kirjastojen kääntämiseen käytetään GNU make:a (gmake)!
+
+
+\subsection freeglut Freeglut
+
+Freeglut-kirjasto on käännettävä EVE:ssä gcc-kääntäjällä
+(freeglut-hakemistossa):
+\verbatim
+export PATH=$PATH:/usr/freeware/bin
+export CC=gcc
+export CXX=g++
+./configure --prefix=$HOME/TIE/local
+gmake -j8
+gmake install
+\endverbatim
+
+
+\subsection boost Boost
+
+Boost-kirjastoa ei tarvitse kääntää, sillä siitä tarvitaan vain headereissa
+oleva toiminnallisuus. Pelkkä paketissa olevan include-hakemiston lisääminen
+include-polkuun siis riittää:
+\verbatim
+cd ~/TIE/local/include
+ln -s ../packages/boost_1_31_0/boost .
+\endverbatim
+
+
+\subsection ode Open Dynamics Engine
+
+ODE:sta tarvitaan tätä ohjelmaa varten patchatty versio (\c
+ode-CVS_2005-02-16_161057_erppatch1), joka on saatavissa TIE:n
+kotisivuilta. Kirjasto vaatii vielä EVE-ympäristöön asennettaessa pari
+muutosta, jotka on kuvattu paketin tiedostossa \c README.irix (\c
+config/user_settings -tiedoston pohjan voi kopioida samassa hakemistossa
+olevasta vastaavasta \c -example -tiedostosta). \c PRECISION ja \c BUILD
+-kentät voi myös valita mieleisikseen, esimerkiksi \c single ja \c debug,
+vastaavasti.
+
+Edellämainitussa tiedostossa kuvattujen muutosten tekemisen jälkeen
+(ODE-hakemistossa):
+\verbatim
+gmake -j8 ode-lib
+cd ~/TIE/local/include
+ln -s ../packages/ode-CVS_2005-02-16_161057_erppatch1/include/ode ode
+cd ~/TIE/local/lib
+ln -s ../packages/ode-CVS_2005-02-16_161057_erppatch1/lib/libode.a libode.a
+\endverbatim
+
+
+\subsection lifespace Lifespace Simulator
+
+Kirjasto vaatii seuraavat muutokset \c Makefile.common -tiedostoonsa:
+\verbatim
+SHELL                   := zsh
+...
+incdirs_common          := $(HOME)/TIE/local/include
+libdirs_common          := $(HOME)/TIE/local/lib
+...
+CPPFLAGS_common_IRIX    := -woff 1682 -O2   (HUOM: tällä on tuntuva vaikutus framerateen!)
+\endverbatim
+
+Kääntäminen (lifespace-hakemistossa):
+\verbatim
+export PATH=$PATH:/usr/freeware/bin
+export CC='cc -n32'
+export CXX='CC -n32'
+gmake -j8 lib
+\endverbatim
+
+
+
+
+\section tie TIE:n asennus
+
+Ohjelma vaatii seuraavat muutokset \c ls_plugins/Makefile.common -tiedostoonsa:
+\verbatim
+incdirs_common          := $(HOME)/TIE/local/include
+libdirs_common          := $(HOME)/TIE/local/lib
+\endverbatim
+
+Ympäristömuuttujat asetetaan osoittamaan oikeisiin EVE-kirjastoihin sekä
+käytettävään lifespace-kirjastoon:
+\verbatim
+export VJ_BASE_DIR=/cavedata/jmlaitin/vrjuggler-1.0.7/instlinks
+export FLUID_ROOT=/p/projects/fluid/current10
+export MUSTAJUURI_PATH=/p/projects/tilmonen/mustajuuri-current2
+export LIFESPACE_BASE_DIR=$HOME/TIE/local/packages/lifespace-0_0_30
+\endverbatim
+
+Gcc lisätään polkuun ja MIPSpro asetetaan kääntäjäksi:
+\verbatim
+export PATH=$PATH:/usr/freeware/bin
+export CC='cc -n32'
+export CXX='CC -n32'
+\endverbatim
+
+TIE-kirjaston kääntö (tie-hakemistossa):
+\verbatim
+cd ls_plugins/fluid
+gmake -j8
+(aja näytölle lopuksi tulostuvat kopiointikäskyt pluginin asentamiseksi)
+
+cd ../vrjuggler
+gmake -j8
+(aja näytölle lopuksi tulostuvat kopiointikäskyt pluginin asentamiseksi)
+
+cd ../..
+gmake -j8 lib
+\endverbatim
+
+
+\subsection im_install Improbable Mission -maailman kääntäminen
+
+Improbable Mission -maailman kääntäminen (tie-hakemistossa):
+\verbatim
+cd test
+gmake -j8 cmode=vrj imworld
+\endverbatim
+
+
+\subsection im_run Improbable Mission -maailman käynnistys
+
+Tiedoston \c test/eve_paths.zsh \c TIE_LIBDIR -polkua on muutettava mikäli
+apukirjastot on asennettu muualle kuin näissä ohjeissa käytettyyn \c
+~/TIE/local -hakemistoon. Lisäksi alla mainitun \c cstereo -komennon tilalle on
+vaihdettava käytössä oleva stereokuvan aktivointikomento. Tämän jälkeen
+Improbable Mission -maailma käynnistyy seuraavasti (tie-hakemistossa):
+\verbatim
+cd test
+source eve_paths.zsh
+cstereo ; sh start_imworld_eve.sh
+\endverbatim
+
+*/

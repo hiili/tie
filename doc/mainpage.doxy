@@ -1,0 +1,34 @@
+/**
+
+\mainpage The Incredible Environment: käyttäjän opas
+
+The Incredible Environment (TIE) on keinotodellisuusympäristössä toimiva
+vuorovaikutteinen järjestelmä, johon on liitetty realistinen
+fysiikkamallinnus. Järjestelmä on toteutettu C++-kirjastona, joka tarjoaa
+avatar-luokat sekä yleisimmin tarvittavia objektityyppejä virtuaalimaailmassa
+käytettäväksi. Näiden lisäksi on mahdollista luoda ja liittää
+virtuaaliympäristöön suoraan kirjaston alla toimivan Lifespace Simulator
+-alustan avulla rakennettuja objekteja. Ohjelmapakettiin sisältyy myös
+kirjastoa käyttävä esimerkkimaailma Improbable Mission.
+
+Tässä oppaassa selostetaan ohjelman asentaminen EVE-ympäristöön sekä sen
+käynnistäminen. Lisäksi käydään läpi virtuaalimaailmassa liikkumiseen liittyviä
+asioita. Opas sisältää myös ohjeita esimerkkimaailman muunteluun sekä uuden
+sisällön luomiseen.
+
+Oppaasta on jätetty pois varsinaisen TIE-kirjaston jatkokehittämiseen liittyvä
+tekninen sisältö sekä Lifespace-alustaan tehtyjen EVE-liitosten tekniset
+kuvaukset. Näiden generoimiseen tarvittavat doxygen-tiedostot löytyvät
+ohjelmapaketin juurihakemistosta sekä \c ls_plugins -hakemistosta. Kyseinen
+dokumentaatio on myös valmiiksi käännettynä ja luettavissa projektin
+kotisivuilla.
+
+Projektin kotisivut: \c http://www.niksula.cs.hut.fi/~pwagner/tie/
+
+  - \ref install-eve
+  - \ref user-info
+  - \ref tee-maailma
+  - \ref kehittajan-opas
+
+
+*/

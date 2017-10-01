@@ -1,0 +1,77 @@
+/* 
+*  Fluid configuration file for EVE (hermit.tml.hut.fi IRIX64)
+*  - This configuration is for fluid7 
+*/
+
+RemoteGlove
+{
+        name = rightHandGlove
+        bufferSize=50
+        server=a2:2200
+
+	dumpFile = data/rightHandGlove.data
+
+}
+
+RemoteGlove
+{
+        name = leftHandGlove
+        bufferSize=50
+        server=a2:2201
+
+	dumpFile = data/leftHandGlove.data
+}
+
+MotionStarTracker
+{
+        name=tracker
+        bufferSize=50
+        server=motion.tml.hut.fi
+
+	/* The transformation is applied in order: 
+	   1) scale
+	   2) rotation
+           3) translation 
+         */
+
+	/* This transfers from MoStar to vrJuggler */
+	rotation = 0 1 0   0 0 -1   -1 0 0
+
+	/* This transfers from inches to meters */
+	/* inches to meters = 0.0254 */
+	/* inches (mostar) to feet (juggler) = 0.083 */
+	scale = 0.083 0.083 0.083 
+	/* scale = 0.0254 0.0254 0.0254 */
+
+	/* Translation is now in feet */
+	translation = "-0.4 7.4 0.4"
+	/* translation = 0.0 0.0 0.0 */
+
+	hemisphere = lower
+
+	sensor0 = bird2
+	sensor1 = righthand		
+	sensor2 = head
+	sensor3 = newwand
+	sensor4 = lefthand
+	sensor5 = wand
+
+	/* Filtering setings for Fluid7 (src dated 09.06.2004) */
+
+	wide_ac_filter = 0
+	narrow_ac_filter = 0
+	dc_filter = 1
+
+	dumpFile = data/tracker.data
+
+}
+
+
+
+
+
+
+
+
+
+

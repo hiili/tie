@@ -1,0 +1,81 @@
+/**
+
+\page user-info Käyttöohjeet (TIE)
+
+Tässä kappaleessa kerrotaan, miten TIE:n avulla toteutetussa
+virtuaalimaailmassa voi liikkua. Lisäksi mainitaan muutama
+erityisesti huomioitava seikka ja keinot selvitä yleisimmistä
+ongelmatilanteista.
+
+\section liik Liikkuminen
+
+Liikkuminen tapahtuu menemällä EVE-kuution jollekin reunalle. Tällöin
+käyttäjän avatariin kohdistetaan kyseiseen suuntaan vaikuttava voima,
+minkä seurauksena avatar lähtee liikkumaan virtuaalimaailmassa kyseiseen
+suuntaan kiihtyvällä vauhdilla. Avatariin kohdistuvan voiman suuruus on
+suhteessa siihen, kuinka lähellä EVE-kuution reunaa käyttäjä on. Liikuttaessa
+on syytä ottaa huomioon, että käyttäjän paikannukseen käytetään stereolaseissa
+olevaa paikanninta. Tästä johtuen liikkumisnopeutta voidaan hienosäätää myös
+pelkästään päätä liikuttamalla. EVE-kuution reunoilla oleva liikkumisalue on
+leveydeltään noin kolmannes koko kuution sivun pituudesta. Liike pysähtyy
+kitkan ja ilmanvastuksen vaikutuksesta, kun käyttäjä siirtyy takaisin
+EVE-kuution keskelle.
+
+\section kaant Kääntyminen
+
+Kääntyminen tapahtuu sitä varten erityisesti suunnitellulla eleellä. Avatarin
+kääntyminen aktivoidaan nostamalla kädet ylös sivuille siten että pää ja kädet
+ovat suurin piirtein samalla linjalla. Tämän jälkeen pään kääntäminen sivulle
+aiheuttaa käyttäjän avatariin vääntövoiman, minkä seurauksena avatar lähtee
+pyörimään virtuaalimaailmassa kyseiseen suuntaan kiihtyvällä nopeudella.
+Avatariin kohdistuvan vääntövoiman suuruus on suhteessa pään kääntökulmaan.
+Pään asennon keskivaiheilla on molempiin suuntiin noin 18 asteen levyinen
+kuollut alue, eli pienet pään liikkeet eivät aiheuta avatarin kääntymistä.
+Pyörimisliike pysähtyy kitkan ja ilmanvastuksen vaikutuksesta, kun käyttäjä
+kääntää katseen suoraan eteenpäin tai kun vaaditun eleen esiehto ei enää
+ole voimassa.
+
+\section tartt Esineisiin tarttuminen
+
+Virtuaalimaailman esineisiin voi tarttua kahdella eri tavalla:
+  - kahdella kädellä puristamalla esine käsien väliin
+  - yhdellä kädellä koskettamalla esinettä avoimella kädellä ja puristamalla
+    sen jälkeen käsi nyrkkiin
+
+Kahden käden tarttuminen hyödyntää avatarin käsien ja kohteena olevan esineen
+välistä kitkaa. Otteen pitävyys riippuu siis esineen muodosta ja materiaalista
+sekä käytetystä puristusvoimasta. Yhden käden tarttumisessa tarttuvan käden ja
+kohteena olevan esineen välille luodaan liitos, eli ote on periaatteessa
+äärettömän pitävä. Otteen irrottaminen yhden käden tapauksessa tapahtuu
+avaamalla kyseinen käsi nyrkistä.
+
+
+\section ongelmat Ongelmatilanteet
+
+\subsection kaatum Avatarin kaatuminen
+
+TIE-kirjastossa toteutettu käyttäjän avatar on fysiikan lakeja noudattava
+olento, mistä johtuen avatarin liikkumisella virtuaalimaailmassa on omat
+rajoitteensa. Avatarin voi saada kaatumaan liikkumalla jotain esinettä
+päin siten, että törmäys kohdistuu avatarin päähän tai käsiin tai yrittämällä
+liikutella liian suuria esineitä mukanaan. Pystyyn nouseminen onnistuu yleensä
+parhaiten siirtymällä EVE-kuution keskelle ja tönäisemällä toisella kädellä
+virtuaalimaailman "lattiaa".
+
+\subsection jumi Avatarin jumiutuminen
+
+Huonosti suunnitellussa virtuaalimaailmassa on mahdollista saada käyttäjän
+avatar jumiutumaan esim. johonkin ahtaaseen paikkaan. Maailmaa suunnitellessa
+onkin syytä ottaa huomioon tällaiset tilanteet. Maailman suunnitteluvirheestä
+johtuva jumiutuminen voi pahimmillaan vaatia sovelluksen käynnistämisen
+uudelleen.
+
+Avatarin jumiutuminen voi myös olla seurausta käyttäjän virheestä. Yleisin
+tällainen virhe lienee se, että käyttäjä on huomaamattaan tarttunut toisella
+kädellään virtuaalimaailman seinään tai lattiaan kiinni, eikä näin ollen pysty
+liikkumaan. EVEssä käytössä olevien datahansikkaiden epätarkkuuksista johtuen
+avatarin käsien hallinta voikin vaatia aluksi hieman totuttelua.
+
+
+*/
+

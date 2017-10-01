@@ -1,0 +1,34 @@
+Fluid plugin for Lifespace Simulator
+-----------------------------------------
+
+Compiling and installing:
+
+Prerequisites:
+  - You have to have the Lifespace Simulator installed somewhere and the
+    environment variable LIFESPACE_BASE_DIR set to point to the installation
+    directory (the directory that contains the lifespace's include and lib
+    dirs).
+  - VR Juggler is also needed and the VJ_BASE_DIR must point to its
+    installation directory.
+
+Compiling and installing the plugin:
+  - Enter 'make' (must be gnu make) in the plugins/ directory.
+  - Copy the contents of the newly created include/ and lib/ directories into
+    the Lifespace installation directory (while maintaining their internal
+    directory structure):
+      cp -R include/lifespace/plugins $LIFESPACE_BASE_DIR/include/lifespace
+      cp -R lib/liblifespacefluid.a $LIFESPACE_BASE_DIR/lib
+
+Generating the reference manual:
+  - Type 'doxygen Doxyfile_user' in the plugins/ dir to generate a user
+    reference manual. Lifespace Simulator must be installed at this point (or
+    you can remove manually the LIFESPACE_BASE_DIR reference from the
+    Doxyfile).
+  - Type 'doxygen Doxyfile_devel' in the plugins/ dir to generate a developer
+    reference manual. Lifespace Simulator must be installed at this point (or
+    you can remove manually the LIFESPACE_BASE_DIR reference from the
+    Doxyfile).
+
+Tests and examples:
+  - More information about these can be found from the directories test/ and
+    examples/.

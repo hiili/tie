@@ -1,0 +1,34 @@
+# Check the environment variables ---------------
+ifneq ($(MAKECMDGOALS),clean)
+ifndef LIFESPACE_BASE_DIR
+$(error Environment variable LIFESPACE_BASE_DIR must be set!)
+endif
+endif
+
+
+# Init with common setup from Lifespace
+include $(LIFESPACE_BASE_DIR)/Makefile.common
+
+
+
+
+# Libs ------------------------------------------
+libs_common_begin       := tie lifespace ode
+libs_common_end         := $(libs_opengl) $(libs_glut) $(libs_std)
+libs_glow               := lifespacefluid lifespaceglow glow \
+                           Fluid FluidVRJ FluidProcessors FluidProcess
+libs_vrj                := lifespacevrjuggler lifespacefluid \
+                           Juggler Juggler_ogl Juggler_utils \
+                           Fluid FluidVRJ FluidProcessors FluidProcess \
+                           aucontrol mjcore dibase
+
+
+# Defines ---------------------------------------
+DEFS_common     := $(DEFS_common) #DEBUG_AVATAR
+DEFS_glow       := $(DEFS_glow)
+DEFS_vrj        := 
+
+
+# Flags -----------------------------------------
+CPPFLAGS        := $(CPPFLAGS_common)
+LINKFLAGS       := $(LINKFLAGS_common)

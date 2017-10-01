@@ -1,0 +1,393 @@
+/**
+
+\page tee-maailma Näin luot maailman
+
+Näin saat luotua maailman, jossa on esineitä TIE:llä. Katso TIE:n asennusopasta, jos tarvitset asennusohjeita.
+
+Oletetaan, että maailmaksi tulee luokka IMWorld. Näin voit käyttää valmista makefileä IM:stä!
+
+Tee tiedosto main_vrj.cpp, jossa on tämänlainen sisältö. Ainoa mahdollisesti muutettava asia tässä
+pitäisi olla avatarin paikka, joka annetaan avataria luodessa ODELocatorille vektoriargumenttina. Huomaa,
+että avataria ei missään nimessä saa luoda minkään objektin sisään, tai seuraa segmentation fault!
+
+\code
+
+/* Include Lifespace and plugins. */
+
+#include <lifespace/lifespace.hpp>
+using namespace lifespace;
+
+#include <di_data_buffer.h>
+#include <lifespace/plugins/fluid.hpp>
+using namespace lifespace::plugins::pfluid;
+
+#include <lifespace/plugins/vrjuggler.hpp>
+using namespace lifespace::plugins::pvrjuggler;
+
+/* Include test-specific files. */
+#include <tie/tie.hpp>
+
+#include "IMWorldVRJ.hpp"
+using namespace tie;
+
+
+/* Other includes. */
+
+#include <ode/ode.h>
+#include <ode/odecpp.h>
+
+#include <GL/gl.h>
+
+#include <string>
+#include <iostream>
+using std::string;
+using std::cout;
+using std::endl;
+
+#include <boost/shared_ptr.hpp>
+using boost::shared_ptr;
+
+
+/* Check that the current ODE is erp-patched and the patch version is ok. */
+#ifndef ODE_VERSION_ERPPATCH
+#error This program requires an erp-patched version of ODE!
+#else
+#if ODE_VERSION_ERPPATCH < 1
+#error The ODEs erp-patch version must be >= 1!
+#endif
+#endif
+
+Avatar * makeVRJCamera( FluidHost * inputHost )
+{
+  // create a fluid controlled avatar and add a visual to it
+  Avatar * fluidAvatar = new Avatar
+    ( Object::Params
+      ( new ODELocator( makeVector3d( 0.0, 2.0, 0.0 ), BasisMatrix(),
+                        AVATAR_MASS,
+                        2.5,
+                        0.1, 0.1, 1.0,
+                        0.1, 0.1, 2.0),
+        new BasicVisual( shapes::Cube::create
+                         ( makeVector3d( 3.0, 0.5, 3.0 )),
+                         &TIEMat::whiteMat ),
+        new BasicGeometry( shapes::Cube::create
+                           ( makeVector3d( 3.0, 0.5, 3.0 )),
+                           TIEMat::testCollMat1 )));
+  
+
+  // create the actual camera and make it follow the camObject
+  Camera * camera1 = new Camera();
+  camera1->setTargetObject( fluidAvatar );
+  
+  VRJViewport::SetCamera( camera1 );
+  
+  return fluidAvatar;
+}
+
+/* ---- main ---- */
+
+
+int main( int argc, char * argv[] )
+{
+  if( argc != 3 ) {
+    cout << "Usage: ./imworld_vrj <fluid config file> <juggler config file>\n";
+    exit(1);
+  }
+
+  /* init fluid */
+  FluidHost * inputHost = new FluidHost( argv[1] );
+  cout << "Fluid initialized.\n";
+
+  /* Init graphics. */
+  VRJDevice::Init( string(argv[2]) );
+  
+  /* Enable automatic generation of display lists. */
+  VRJDevice::instance()->setAutoDisplaylisting( true );
+  
+  
+  Avatar * camObj = makeVRJCamera( inputHost );
+  
+  /* init user interface */
+  UserInterface ui = UserInterface( camObj, inputHost, GRAVITY, AVATAR_MASS );
+
+  /* Create the world. */
+  IMWorld world( VRJDevice::instance()->events, inputHost, camObj, &ui );  
+    
+  /* Start the system. */
+  world.setDefaultDt( 0.05 );
+  VRJDevice::instance()->events.addListener( inputHost );
+  VRJDevice::instance()->events.addListener( &world );
+  cout << "Entering main loop.. \n ";
+  VRJDevice::MainLoop();
+  
+
+  inputHost->terminate();
+  delete inputHost;
+  return 0;
+}
+
+
+\endcode
+
+No niin. Sitten itse maailma. Tässä esimerkissä maailmaan luodaan yksi staattinen esine lattiaksi,
+kuutio, pallospawneri ja valo.
+
+Ensin headeri, tiedosto IMWorldVRJ.hpp. Painovoimaa ja avatarin massaa voi muuttaa tästä,
+niiden ei pitäisi vaikuttaa liikkumiseen mutta se on silti mahdollista!
+
+\code
+
+#ifndef _IMWORLD_HPP_
+#define _IMWORLD_HPP_
+
+
+#include <lifespace/lifespace.hpp>
+#include <lifespace/plugins/fluid.hpp>
+
+#include <tie/tie.hpp>
+
+#include <boost/shared_ptr.hpp>
+#include <vector>
+
+#define GRAVITY 9.81
+#define AVATAR_MASS 40.0
+
+
+namespace tie {
+  
+  
+  
+  
+  class IMWorld :
+    public lifespace::ODEWorld
+  {
+  private:
+    
+    lifespace::ODECollisionRenderer * collisionRenderer;
+    
+    
+  public:
+    
+    /* constructors/destructors/etc */
+    
+    /**
+     * Creates a new test world which contains a single light source and a
+     * basis object.
+     *
+     * @param graphicsEventHost   A reference to the graphics device's
+     *                            EventHost.
+     */
+    IMWorld( lifespace::EventHost<lifespace::GraphicsEvent> &
+               graphicsEventHost, 
+               lifespace::plugins::pfluid::FluidHost * inputHost,
+               Avatar * avatar,
+               UserInterface * ui );
+    
+    /** */
+    virtual ~IMWorld();
+  };
+  
+  
+  
+  
+}   /* namespace tie */
+
+
+
+
+#endif //_IMWORLD_HPP_
+
+\endcode
+
+Sitten tiedosto IMWorldVRJ.cpp.
+
+\code
+
+#include "IMWorldVRJ.hpp"
+
+#include<tie/tie.hpp>
+using namespace tie;
+
+#include <lifespace/lifespace.hpp>
+using namespace lifespace;
+
+
+#include <lifespace/plugins/fluid.hpp>
+using namespace lifespace::plugins::pfluid;
+
+#include <lifespace/plugins/vrjuggler.hpp>
+using namespace lifespace::plugins::pvrjuggler;
+
+#include <ode/ode.h>
+#include <ode/odecpp.h>
+
+#include <string>
+#include <iostream>
+using std::string;
+using std::cout;
+using std::endl;
+
+#include <boost/shared_ptr.hpp>
+using boost::shared_ptr;
+
+static float WorldFriction = 1.3;
+static float WingMass = 3.0;
+
+IMWorld::IMWorld( EventHost<GraphicsEvent> & graphicsEventHost,
+                      FluidHost * inputHost,
+                      Avatar * avatar,
+                      UserInterface * ui )
+{
+  addObject( ui );
+  
+  // init and add avatar object to the world
+  avatar->init( inputHost, this );
+
+
+
+  addObject( avatar );
+
+  /* -------- create world content -------- */
+
+
+\endcode
+
+Nyt aletaan luomaan esineitä maailmaan.
+  
+Luodaan yleinen törmäysmateriaali vähentämään vaivaa.
+Törmäysmateriaalin parametreihin tulee kitka, bounciness (1.0 kimmoisa törmäys)
+sekä nopeus, jolla pomppausta ei enää tapahdu.
+
+\code
+
+  shared_ptr<CollisionMaterial> defaultCM( new CollisionMaterial(WorldFriction, 0.7, 0.0));
+
+  //First, generate a floor.
+
+\endcode
+  
+BasicLocator tulee esineisiin, jotka ovat staattisia. Sen vektori kertoo, minne objektin keskipiste tulee (x, y, z)
+BasicVisual kertoo miltä esine näyttää, muoto ja materiaali.
+BasicGeometry kertoo minkä mallinen törmäysmuoto esineellä on. Normaalisti se on sama kuin visuaalinen muoto. Tarvitaan myös 
+törmäysmateriaali, joka luotiin aiemmin.
+
+\code
+  
+  Object * floor1 = new Object
+  	(Object::Params
+  		(new BasicLocator(makeVector3d(0.0, -1.0, 0.0)),
+  		 new BasicVisual
+  		 	(sptr (new shapes::Cube(makeVector3d(100.0,3.0,100.0))),
+  		 	&TIEMat::groundMat),
+  		 new BasicGeometry
+  		 	(sptr (new shapes::Cube(makeVector3d(100.0,3.0,100.0))),
+  		 	defaultCM)));
+
+  //muistetaan lisätä esine maailmaan.
+
+  addObject(floor1);
+  
+\endcode
+
+Sitten luodaan fysiikkamallinnettu punainen pallo säteellä 3. Tähän ODELocator BasicLocatorin tilalle, muuten samalla lailla.
+Laitetaan palloon vähän kitkaa, paljon pomppivuutta.
+
+\code
+ 
+  Object * ball1 = new Object
+ 	(Object::Params
+ 		(new ODELocator(makeVector3d(10.0, 5.0, 10.0)),
+ 		new BasicVisual
+ 			(sptr (new shapes::Sphere(3.0)),
+ 			&TIEMat::redMat),
+ 		new BasicGeometry
+ 			(sptr (new shapes::Sphere(3.0)),
+ 			sptr (new CollisionMaterial(0.1, 1.0, 0.0)))));
+ 
+  addObject(ball1);
+  
+
+\endcode
+
+Sitten tehdään kuutiospawneri, joka ampuu 8 kieppuvaa kuutioita suoraan ylöspäin.
+Argumentit ovat kuution 'säde', tarkistusaikaväli, paikka, maailma-objekti, kappalemäärä,
+boolean-argumentit 'jalustan' törmäysmuodolle ja visualille (eli onko sitä vai ei), 
+alwaysSpawn (falsella spawneri ei tuota uutta esinettä ennen kuin edellinen on poistunut
+xz-akselilla spawnerin kohdalta) sekä vektorit alkuvoimalle ja alkuvääntömomentille.
+
+\code
+
+	addObject(new CubeSpawner (1.7, 25.0, makeVector3d (-10.0, 7.00, -10.0),
+ 		this, 8, false, false, true, makeVector3d(0.0, 260.0, .0),
+ 		 makeVector3d(0.0, 45.0, 50.0)));
+ 
+\endcode
+
+  Tehdään vielä staattinen valo maailmaan. Ensin objekti, sitten valo.
+
+\code
+
+  Object * lightObj5 = new Object
+    ( Object::Params( new BasicLocator( makeVector3d( -10.0, 50.0, 10.0 )),
+                      new BasicVisual( sptr( new shapes::Sphere ),
+                                       &TIEMat::redEmissionMat ),
+                      new BasicGeometry
+                      	(sptr (new shapes::Sphere(1.0)),
+                      	sptr (new CollisionMaterial (2.0, 0.9, 0.0 )))));
+  addObject( lightObj5 );
+  
+
+  //Itse valo luodaan tässä.
+  GLfloat * lightAtt5 = new GLfloat[3];
+  lightAtt5[0] = 0.85; lightAtt5[1] = 0.0; lightAtt5[2] = 0.0;
+  Light * light5 = new Light( &TIEMat::whiteMat, lightObj5, lightAtt5 );
+  getEnvironment()->addLight( light5 );
+
+\endcode
+
+Tänne sitten pakollista asiaa vielä. Ainoa mahdollisesti muutettava asia on fysiikkamoottorin
+korjausvoimat, jotka ovat suositelluissa arvoissaan näin. Kokeilu on sallittua, mutta
+outoja asioita saattaa tapahtua!
+
+\code
+
+  /* -------- finalize -------- */
+
+ setGravityVector( makeVector3d( 0.0, -GRAVITY, 0.0 ));
+
+  // activate the ODE world
+ activate( true );
+  
+ // create and activate the collision detector
+ collisionRenderer = new ODECollisionRenderer( this );
+ collisionRenderer->connect();
+ graphicsEventHost.addListener( collisionRenderer );
+ 
+ // connect all connectors
+ 
+ avatar->connect();
+
+ //Korjausvoimat fysiikkamoottorille. 
+ setERP(0.5);
+ setCFM(0.001);
+  
+ 
+}
+
+
+IMWorld::~IMWorld()
+{
+}
+
+
+\endcode
+
+Näin, nyt esimerkkimaailmamme on valmis! Lisää informaatiota saa Lifespacen referenssimanuaaleista
+sekä IMWorld-esimerkkimaailmasta. Tässä ei olla esimerkiksi käsitelty unioni-muotoja, located-esineitä
+tai connectoreita.
+
+
+*/
+
+
+

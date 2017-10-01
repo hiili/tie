@@ -1,0 +1,98 @@
+/**
+
+\page kehittajan-opas TIE-kehitt‰j‰n opas
+
+T‰m‰ ohje kertoo, kuinka kehitt‰j‰ voi lis‰t‰ uusia ominaisuuksia TIE-maailmaan.
+
+\section spawner Uusien spawnerien luominen
+
+Esineit‰ maailmaan lis‰‰vi‰ spawnereita voi tehd‰ perimisen avulla. Kaikki spawnerit periv‰t Spawner-yl‰luokasta, jonka metodien avulla spawnerit toteutetaan. Yl‰luokan konstruktorille annetut parametrit m‰‰r‰‰v‰‰t, miten spawner k‰ytt‰ytyy.
+
+\code
+
+BallSpawner::BallSpawner(float a_size, float a_spawntime, Vector a_location, 
+  ODEWorld * a_spawnWorld, int a_spawnCount, bool a_visual,
+  bool a_geometry, bool a_alwaysSpawn, Vector a_force, Vector a_torque):
+	// Yl‰luokan konstruktori
+  Spawner( a_size, a_spawntime, a_location, a_spawnWorld, a_visual, a_geometry ),
+  // Perityn luokan muuttujien asettaminen
+    force(a_force), torque(a_torque), alwaysSpawn(a_alwaysSpawn)
+
+\endcode
+
+Yll‰ olevassa esimerkiss‰ peritty luokka ottaa argumentiksi koon, spawnausten v‰lisen ajan, spawnerin paikan, maailman johon spawner lis‰t‰‰n, spawnattavan m‰‰r‰n, boolean arvot n‰ytet‰‰nkˆ visuaali, onko spawnerill‰ tˆrm‰ysmuoto ja spawnataanko aina vaikka edellinen esine olisi edelleen jalustalla sek‰ vektorit, joden mukainen voima ja v‰‰ntˆmomentti kohdistetaan spawnattuun esineeseen spawnauksen j‰lkeen.
+Kaikkia atribuutteja ei anneta yl‰luokalle, vaan voiman, momentin ja aina-spawnauksen tarvitsema toiminnallisuus pit‰‰ toteutetaan aliluokassa. 
+
+Spawnattaavat esineet pit‰‰ luoda ja lis‰t‰ Spawneriin perityn luokan konstruktorissa. Lis‰‰miseen k‰ytet‰‰n pushObject metodia ja esineet spawnataan first-in-first-out j‰rjestyksess‰.
+
+\code
+
+for(int i = 0; i < a_spawnCount; i++) {
+  pushObject(new Object
+    ( Object::Params        
+      /* Must give ODELocator as locator, location does not matter */
+      ( new ODELocator(),
+      /* Create visual for the balls */
+      new BasicVisual( shapes::Sphere::create(a_size / 2),
+        &TIEMat::groundMat ),
+      /* Create geometry for the balls */
+      new BasicGeometry( shapes::Sphere::create(a_size / 2),
+        (sptr (new CollisionMaterial (1.0, 0.5, 0) )))
+      )
+    )
+  );
+}
+
+\endcode
+
+T‰h‰n astinen toiminnallisuus riitt‰‰ perus-spawnerin luomiseen. Jos spawnerille halutaan lis‰‰ toiminnallisuutta, se tehd‰‰n ylikirjoittamalla yl‰luokan spawn-metodi. Alla olevassa esimerkiss‰ spawnattavalle esineeseen kohdistetaan voimaa ja v‰‰ntˆmomenttia spawnauksen j‰lkeen. Huomaa, ett‰ spawnattava objekti saadaan yl‰luokalta joko spawn() tai spawn(bool) metodeilla. J‰lkimm‰isen avulla voidaan spawnata esineit‰, vaikka edellinen spawnattu esine olisi edelleen jalustan p‰‰ll‰. 
+
+\code
+
+Object * BallSpawner::spawn()
+{
+  Object * spawnObject = Spawner::spawn(alwaysSpawn);
+  if(spawnObject != 0) {
+    spawnObject->getLocator()->addForceAbs(force);
+    spawnObject->getLocator()->addTorqueAbs(torque);
+    return spawnObject;
+  }
+  else
+    return 0;
+}
+
+\endcode
+
+Jos spawnattava esine koostuu monesta osasta ja osat pit‰‰ konnektoida connectoreilla spawnauksen j‰lkeen, pit‰‰ myˆs konnektointi tehd‰ spawn-metodissa. Seuraavassa esimerkiss‰ spawnattava objekti koostuu kolmesta osasta, jotka spawnataan kerralla ja yhdistet‰‰n.
+
+\code
+
+Object * BVDSpawner::spawn()
+{
+	// Spawnataan yksi osa
+  Object * middle = Spawner::spawn();
+
+	// Jos osa saatiin spawnattua, spawnataan loput osat
+  if(middle != 0) {
+    Object * end1 = Spawner::spawn(true);
+    Object * end2 = Spawner::spawn(true);
+
+		// Yhdistet‰‰n spawnatut osat
+    middle->getConnector(TestObject::CONN_X_AXIS_TIP).connect
+      ( end1->getConnector(TestObject2::CONN_X_AXIS_TIP), 
+        Connector::AlignSlave );
+    middle->getConnector(TestObject::CONN_Y_AXIS_TIP).connect
+      ( end2->getConnector(TestObject2::CONN_X_AXIS_TIP),
+        Connector::AlignSlave );
+    middle->getLocator()->addForceAbs( force );
+    middle->getLocator()->addForceAbs( torque );
+  }
+  return middle;
+}
+
+\endcode
+
+*/
+
+
+

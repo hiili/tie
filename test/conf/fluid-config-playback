@@ -1,0 +1,48 @@
+/* VR Juggler example configuration file */
+
+/*
+FileMouse
+{
+        name   = hiiri
+        server = a2:2220
+
+	filename = data/mouse.data
+
+}
+*/
+FileGlove
+{
+        name = rightHandGlove
+        bufferSize=50
+        server=a2:2200
+
+	filename = data/rightHandGlove.data
+
+}
+
+FileGlove
+{
+        name = leftHandGlove
+        bufferSize=50
+        server=a2:2201
+
+	filename = data/leftHandGlove.data
+
+}
+
+FileTracker
+{
+        name=tracker
+        bufferSize=50
+        server=130.233.45.15
+
+	sensor0 = baton
+	sensor1 = lefthand		
+	sensor2 = head
+	sensor3 = newwand
+	sensor4 = righthand
+	sensor5 = wand
+
+	filename = data/tracker.data
+}
+

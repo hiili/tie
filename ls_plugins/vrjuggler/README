@@ -1,0 +1,43 @@
+VR Juggler plugin for Lifespace Simulator
+-----------------------------------------
+
+version 0.0.1
+
+The plugin uses VR Juggler as the graphics rendering target for the Lifespace
+Simulator. It implements the following abstract classes from Lifespace:
+  - Device (implemented with VRJDevice): VRJDevice represents the whole VR
+    Juggler system. It can contain multiple VRJViewport objects.
+  - Viewport (implemented with VRJViewport): This represents a single rendering
+    area (usually a wall in a virtual reality environment).
+
+
+Compiling and installing:
+
+Prerequisites:
+  - You have to have the Lifespace Simulator installed somewhere and the
+    environment variable LIFESPACE_BASE_DIR set to point to the installation
+    directory (the directory that contains the lifespace's include and lib
+    dirs).
+  - VR Juggler is also needed and the VJ_BASE_DIR must point to its
+    installation directory.
+
+Compiling and installing the plugin:
+  - Enter 'make' (must be gnu make) in this directory.
+  - Copy the contents of the newly created include/ and lib/ directories into
+    the Lifespace installation directory (while maintaining their internal
+    directory structure):
+      cp -R include/lifespace/plugins $LIFESPACE_BASE_DIR/include/lifespace
+      cp -R lib/liblifespacevrjuggler.a $LIFESPACE_BASE_DIR/lib
+
+Generating the reference manual:
+  - Type 'doxygen Doxyfile_user' in this directory to generate a user
+    reference manual. Lifespace Simulator must be installed at this point (or
+    you can remove manually the LIFESPACE_BASE_DIR reference from the
+    Doxyfile).
+  - Type 'doxygen Doxyfile_devel' in this directory to generate a developer
+    reference manual. Lifespace Simulator must be installed at this point (or
+    you can remove manually the LIFESPACE_BASE_DIR reference from the
+    Doxyfile).
+
+Tests and examples:
+  - More information about these can be found from the directory test/.

@@ -1,0 +1,7 @@
+chunk FluidVrjTracker "FluidVrjTracker" "Configuration for FluidVrjTracker"
+  Name String 1 "Name" "Unique name of an instance of this chunk type"
+  sourcename String 1 "sourcename" "FLUID tracker name"
+  translate Float 3 "Translation" "(world_T_transmitter) Translation of the transmitter from Juggler coord system."
+  rotate Float 3 "Rotation" "(world_T_transmitter) Rotation of the tranmitter from the Juggler coord system."
+  end
+End
